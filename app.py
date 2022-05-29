@@ -9,6 +9,9 @@ from linebot.models import (
     TextSendMessage,
 )
 
+from assets.database import db_session
+from assets.models import Data
+
 CHANNEL_ACCESS_TOKEN = os.environ["CHANNEL_ACCESS_TOKEN"]
 CHANNEL_SECRET = os.environ["CHANNEL_SECRET"]
 
@@ -19,8 +22,9 @@ app = Flask(__name__)
 
 
 @app.route("/")
-def say_hello():
-    return "Hello"
+def index():
+    data = db_session.query(Data.count,Data.timestamp).all()
+    return data
 
 
 @app.route("/callback", methods=["POST"])
