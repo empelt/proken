@@ -23,8 +23,8 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-    data = db_session.query(Data.count,Data.timestamp).all()
-    return data
+    data = db_session.query(Data.count,Data.timestamp).first()
+    return data.count
 
 
 @app.route("/callback", methods=["POST"])
