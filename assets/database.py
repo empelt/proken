@@ -10,7 +10,7 @@ import os
 database_file = os.path.join(os.path.abspath(os.path.dirname(__file__)), "data.db")
 
 engine = create_engine(
-    os.environ.get("DATABASE_URL") or "sqlite:///" + database_file,
+    os.environ.get("DATABASE_URL2") or "sqlite:///" + database_file,
     convert_unicode=True,
     echo=True,
 )
