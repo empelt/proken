@@ -58,8 +58,8 @@ def callback() -> str:
 
     return "OK"
 
-async def get_count() -> int:
-    data = await db_session.query(Data.count, Data.timestamp).first()
+def get_count() -> int:
+    data = db_session.query(Data.count, Data.timestamp).first()
     return data.count
 
 @handler.add(MessageEvent, message=TextMessage)
