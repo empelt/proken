@@ -58,13 +58,15 @@ def callback() -> str:
 
     return "OK"
 
+async def get_count() -> int:
+    data = await db_session.query(Data.count, Data.timestamp).first()
+    return data.count
 
 @handler.add(MessageEvent, message=TextMessage)
-async def handle_message(event):
-    data = await db_session.query(Data.count, Data.timestamp).first()
+def handle_message(event):
     if event.message.text=="人数":
         line_bot_api.reply_message(
-            event.reply_token, TextSendMessage(text=str(data.count))
+            event.reply_token, TextSendMessage(text=str(get_count()))
         )
     else:
         line_bot_api.reply_message(
