@@ -1,3 +1,4 @@
+from itertools import count
 from flask import Flask, request, abort
 import os
 
@@ -8,6 +9,7 @@ from linebot.models import (
     TextMessage,
     TextSendMessage,
 )
+from datetime import datetime
 
 from assets.database import db_session
 from assets.models import Data
@@ -22,13 +24,22 @@ app = Flask(__name__)
 
 
 @app.route("/")
-def index():
-    data = db_session.query(Data.count,Data.timestamp).first()
-    return data.count
+def index() -> str:
+    return "OK"
+
+
+@app.route("/update_count", methods=["POST"])
+def update_count() -> str:
+    payload = request.json
+    new_count = payload.get("count")
+    data = db_session.query(Data).filter(Data.id == 1)
+    data.update({"count": new_count})
+    db_session.commit()
+    return "OK"
 
 
 @app.route("/callback", methods=["POST"])
-def callback():
+def callback() -> str:
     # get X-Line-Signature header value
     signature = request.headers["X-Line-Signature"]
 
@@ -50,9 +61,15 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    line_bot_api.reply_message(
-        event.reply_token, TextSendMessage(text=event.message.text)
-    )
+    data = db_session.query(Data.count, Data.timestamp).first()
+    if event.message.text=="人数":
+        line_bot_api.reply_message(
+            event.reply_token, TextSendMessage(text=str(data.count))
+        )
+    else:
+        line_bot_api.reply_message(
+            event.reply_token, TextSendMessage(text=event.message.text)
+        )
 
 
 if __name__ == "__main__":
