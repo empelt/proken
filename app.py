@@ -75,7 +75,7 @@ def handle_message(event) -> None:
             is_update_session = False
         elif received_text == "人数を取得する":
             line_bot_api.reply_message(
-                event.reply_token, TextSendMessage(text=str(get_count()))
+                event.reply_token, TextSendMessage(text=f"現在の人数は{str(get_count())}人です")
             )
             is_update_session = False
         elif received_text == "人数を更新する":
@@ -90,7 +90,7 @@ def handle_message(event) -> None:
     else:
         if received_text == "人数を取得する":
             line_bot_api.reply_message(
-                event.reply_token, TextSendMessage(text=str(get_count()))
+                event.reply_token, TextSendMessage(text=f"現在の人数は{str(get_count())}人です")
             )
         elif received_text == "人数を更新する":
             line_bot_api.reply_message(
