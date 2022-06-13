@@ -22,19 +22,11 @@ handler = WebhookHandler(CHANNEL_SECRET)
 
 app = Flask(__name__)
 
+is_update_session = False
+
 
 @app.route("/")
 def index() -> str:
-    return "OK"
-
-
-@app.route("/update_count", methods=["POST"])
-def update_count() -> str:
-    payload = request.json
-    new_count = payload.get("count")
-    data = db_session.query(Data).filter(Data.id == 1)
-    data.update({"count": new_count})
-    db_session.commit()
     return "OK"
 
 
@@ -58,20 +50,56 @@ def callback() -> str:
 
     return "OK"
 
+
 def get_count() -> int:
     data = db_session.query(Data.count, Data.timestamp).first()
     return data.count
 
+
+def update_count(new_count: int) -> None:
+    data = db_session.query(Data).filter(Data.id == 1)
+    data.update({"count": new_count})
+    db_session.commit()
+
+
 @handler.add(MessageEvent, message=TextMessage)
-def handle_message(event):
-    if event.message.text=="人数":
-        line_bot_api.reply_message(
-            event.reply_token, TextSendMessage(text=str(get_count()))
-        )
+def handle_message(event) -> None:
+    received_text: str = event.message.text
+    if is_update_session:
+        if received_text.isdecimal():
+            line_bot_api.reply_message(
+                event.reply_token, TextSendMessage(text=f"人数を{received_text}人に更新しました")
+            )
+            update_count(int(received_text))
+            is_update_session = False
+        elif received_text == "人数を取得する":
+            line_bot_api.reply_message(
+                event.reply_token, TextSendMessage(text=str(get_count()))
+            )
+            is_update_session = False
+        elif received_text == "人数を更新する":
+            line_bot_api.reply_message(
+                event.reply_token, TextSendMessage(text="人数を半角数字で入力してください")
+            )
+            is_update_session = True
+        else:
+            line_bot_api.reply_message(
+                event.reply_token, TextSendMessage(text="正しい形式で再入力してください")
+            )
     else:
-        line_bot_api.reply_message(
-            event.reply_token, TextSendMessage(text=event.message.text)
-        )
+        if received_text == "人数を取得する":
+            line_bot_api.reply_message(
+                event.reply_token, TextSendMessage(text=str(get_count()))
+            )
+        elif received_text == "人数を更新する":
+            line_bot_api.reply_message(
+                event.reply_token, TextSendMessage(text="人数を半角数字で入力してください")
+            )
+            is_update_session = True
+        else:
+            line_bot_api.reply_message(
+                event.reply_token, TextSendMessage(text="リッチメニューから選択してください")
+            )
 
 
 if __name__ == "__main__":
