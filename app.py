@@ -30,6 +30,16 @@ def index() -> str:
     return "OK"
 
 
+@app.route("/update_count", methods=["POST"])
+def update_count() -> str:
+    payload = request.json
+    new_count = payload.get("count")
+    data = db_session.query(Data).filter(Data.id == 1)
+    data.update({"count": new_count})
+    db_session.commit()
+    return "OK"
+
+
 @app.route("/callback", methods=["POST"])
 def callback() -> str:
     # get X-Line-Signature header value
