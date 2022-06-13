@@ -64,6 +64,7 @@ def update_count(new_count: int) -> None:
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event) -> None:
+    global is_update_session
     received_text: str = event.message.text
     if is_update_session:
         if received_text.isdecimal():
